@@ -7,7 +7,7 @@ This assignment integrates many concepts that you have learned over the last few
 ### Phase 1: Bare Bones Bot
 
 Your first implementation of the bot will run on your local development machine, and should be able to perform these basic functions:
-
+*   Make sure you use python classes and objects when you implement. [Here](https://github.com/KenzieAcademy/backend-slackbot/) is a starter code and some suggested methods 
 *   Connect your app to the [KenzieBot](https://kenziebot.slack.com) workspace as a bot user
 *   Send a message to a channel announcing that it is online
 *   Wait for and process events/messages in an infinite while-loop
