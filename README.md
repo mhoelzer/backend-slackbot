@@ -45,6 +45,29 @@ This assignment will be more of a free-form creative endeavor than in your previ
 *   [Small commits](https://blog.hartleybrody.com/git-small-teams/)
 *   LICENSE file
 
+### **Deployment Details**
+
+NOTE: This section assumes that you have already created a Heroku account from previous assignments, and you have the [Heroku CLI tools](https://devcenter.heroku.com/articles/heroku-cli) installed on your local development machine.  
+Most of the python Heroku deployment examples on the internet assume that you are developing a web app, but in this case you are deploying a simple standalone python script without a framework or WSGI gateway.  In order to deploy your bot to Heroku, your github repo must contain some special files named \`Procfile\` and \`runtime.txt\`.  Procfile tells Heroku which program to run when you activate your free dyno instance.  Procfile contents should look like this:
+
+worker: python slackbot.py
+
+Runtime.txt tells Heroku which python interpreter version to use, when it constructs a docker image for your slackbot.  You should select a version that matches the one that you used while developing in your virtual environment.  See which python versions are supported by Heroku [here](https://devcenter.heroku.com/articles/python-runtimes).  Sample contents of \`runtime.txt\`:
+
+python-3.6.6
+
+Your slackbot application is designed to be long-running, so it seems natural to try and deploy it on a cloud hosting platform such as Heroku.  However, Heroku limits the free-tier cloud hosting 'dynos' to a maximum uptime of 18 hours per 24-hour period.  So your bot will be forcibly euthanized every so often (unless you upgrade to Hobby tier -- $7.00/month). 
+
+    heroku create my_unique_slackbot_namegit push heroku master
+
+Remember that your .env file should contain your slackbot API tokens, and it should not be part of your repo (that is, .env should be listed in your .gitignore).  You will need to copy your API tokens directly into Heroku config vars:
+
+heroku config:set BOT\_USER\_TOKEN="xoxb-431941958864-124971466353-2Ysn7vyHOUkzjcABC76Tafrq"
+
+Now everything should be ready to run.  Start up your slackbot and check the logs:
+
+    heroku ps:scale worker=1
+
 Tips for Getting Started 
 -------------------------
 
