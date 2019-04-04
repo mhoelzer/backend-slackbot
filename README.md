@@ -28,6 +28,7 @@ For this assignment, we will be using two separate, private Slack Team accounts.
  - Ignore any messages that don't contain a direct `@mention` of your bot name
  - Create a command parser that can act upon any command directed at your bot
  - Be sure to implement a `help` command that lists all commands that your bot understands
+ - Implement `ping` command that will show the uptime of the bot
  - Implement an internal self-test command that will `raise` different kinds of exceptions within your bot.  This will help to "harden" your bot against unforeseen errors, and test its recovery path.
  - Exit your bot program if you receive an exit command.  For example, if your bot is named `example-bot` then your program should exit gracefully when it receives a slack message such as `@example-bot exit`
 
