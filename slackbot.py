@@ -50,7 +50,7 @@ class SlackBot:
         """Sends a message to a Slack Channel"""
         pass
 
-    def handle_command(self, twc, raw_cmd, channel):
+    def handle_command(self, raw_cmd, channel):
         """Parses a raw command string from the bot"""
         pass
 
