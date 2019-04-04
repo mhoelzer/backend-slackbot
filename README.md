@@ -44,7 +44,7 @@ Most of the python Heroku deployment examples on the internet assume that you ar
 
 Runtime.txt tells Heroku which python interpreter version to use, when it constructs a docker image for your slackbot.  You should select a version that matches the one that you used while developing in your virtual environment.  See which python versions are supported by Heroku [here](https://devcenter.heroku.com/articles/python-runtimes).  Sample contents of `runtime.txt`:
 
-    python-3.6.6
+    python-3.7.2
 
 Your slackbot application is designed to be long-running, so it seems natural to try and deploy it on a cloud hosting platform such as Heroku.  However, Heroku limits the free-tier cloud hosting 'dynos' to a maximum uptime of 18 hours per 24-hour period.  So your bot will be forcibly euthanized every so often (unless you upgrade to Hobby tier -- $7.00/month). 
 
