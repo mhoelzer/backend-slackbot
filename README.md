@@ -61,7 +61,7 @@ Now everything should be ready to run.  Start up your slackbot and check the lo
     heroku ps:scale worker=1
 
 ## Guidance Notes
-You will submit a link to a github repository named backend-slacktweet-assessment, but you will create and curate this repository on your own instead of forking a Kenzie repo.  Remember that your work on github will become your own personal portfolio that you will want to show off to recruiters and potential employers.   With that said, here are a few best-practices that we will be looking for in your repo:
+You will submit a link to a github repository, but you will create and curate this repository on your own instead of forking a Kenzie repo.  Remember that your work on github will become your own personal portfolio that you will want to show off to recruiters and potential employers.   With that said, here are a few best-practices that we will be looking for in your repo:
 
 ### Source Code Best Practices
  - PEP8: No warnings
@@ -88,7 +88,7 @@ You will submit a link to a github repository named backend-slacktweet-assessmen
  - [Small commits](https://blog.hartleybrody.com/git-small-teams/) with meaningful messages-- not "more changes" or "blah foo bar" or "asdfadfadfadfadfasdfasdf"
  - Don't commit log files or virtual envs to the repo!
 
-**Logging** - Your Slacktweet app should log to both the console and a file.  Low-frequency events should be logged at INFO level, and high-frequency at DEBUG.  Exception handlers should log at ERROR or above for anything unhandled. Other levels are self-explanatory.  Use an environment variable to select logging output level when your Bot starts.  Log startup and shutdown events, as well as slack client connection info and any disconnect events.  Log every message that your Bot receives and sends to the Slack API.  Manage your file logging with some kind of time rotation or deleting schedule so that logs do not grow unbounded.  The Python logging module has built-in ways to do this.
+**Logging** - Your Slackbot app should log to both the console and a file.  Low-frequency events should be logged at INFO level, and high-frequency at DEBUG.  Exception handlers should log at ERROR or above for anything unhandled. Other levels are self-explanatory.  Use an environment variable to select logging output level when your Bot starts.  Log startup and shutdown events, as well as slack client connection info and any disconnect events.  Log every message that your Bot receives and sends to the Slack API.  Manage your file logging with some kind of time rotation or deleting schedule so that logs do not grow unbounded.  The Python logging module has built-in ways to do this.
 
 **OS Signal Handling** - Your Bot should handle SIGTERM and SIGINT just like in the Dirwatcher assignment.  Log every OS signal that your Bot receives.  In a free-dyno Heroku deployment, your program WILL receive a SIGTERM at least once per day, when it wants your Bot to go to sleep.  Take that opportunity to gracefully close any open connections to Slack or other API and send a buh-bye message.
 
