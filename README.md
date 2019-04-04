@@ -34,36 +34,6 @@ For this assignment, we will be using two separate, private Slack Team accounts.
 ### Part B: API Integration
 Now that you have a working Slack client that responds to commands, connect it to another API.  Fetch a picture, or a stock price, or the weather forecast or a traffic report.  Have the bot render the data back to the slack channel.
 
-### Guidance Notes
-
-This assignment will be more of a free-form creative endeavor than in your previous work.  You will be required to submit a link to a github repo, but you will create and curate this repository on your own instead of forking a Kenzie repo.  Remember that your work on github will become your own personal portfolio that you will want to show off to recruiters and potential employers. 
-
-#### **Source Code Best Practices**
-
-*   PEP8: No warnings
-*   if \_\_name\_\_ == "\_\_main\_\_" Python idiom
-*   Docstrings and #comments for functions and modules
-*   Unit Tests that are discoverable and passing
-*   Non-monolithic structure (short, concise functions)
-*   Readability, maintainability
-
-#### **Development Best Practices**
-
-*   Research and plan.
-*   Create and use a virtual environment
-*   Pip-install any new packages into your virtualenv
-*   Configure your IDE to use the interpreter from your virtual environment
-*   Use your IDE and debugger to run, step, and view
-*   Use local environment variables for API tokens and keys
-
-#### **Repo Best Practices**
-
-*   Have a descriptive top-level README.md
-*   .gitignore is present, with .vscode/ and .env
-*   requirements.txt from pip freeze
-*   No hard-coded API keys or tokens anywhere.  [DO NOT LEAK TOKENS](https://labs.detectify.com/2016/04/28/slack-bot-token-leakage-exposing-business-critical-information/).
-*   [Small commits](https://blog.hartleybrody.com/git-small-teams/)
-*   LICENSE file
 
 ### Deployment Details
 
@@ -83,7 +53,7 @@ Your slackbot application is designed to be long-running, so it seems natural 
 
 Remember that your .env file should contain your slackbot API tokens, and it should not be part of your repo (that is, .env should be listed in your .gitignore).  You will need to copy your API tokens directly into Heroku config vars:
 
-    heroku config:set BOT\_USER\_TOKEN="xoxb-431941958864-124971466353-2Ysn7vyHOUkzjcABC76Tafrq"
+    heroku config:set BOT_USER_TOKEN="xoxb-431941958864-124971466353-2Ysn7vyHOUkzjcABC76Tafrq"
 
 Now everything should be ready to run.  Start up your slackbot and check the logs:
 
@@ -99,6 +69,7 @@ You will submit a link to a github repository named backend-slacktweet-assessmen
  - `__authors__` = "My Name"
  - Non-monolithic structure (short, concise class methods) that mostly adhere to the [single-responsibility](https://en.wikipedia.org/wiki/Single_responsibility_principle)
  - Readability, maintainability
+
 ### Development Best Practices
  - Collaborate with your Teammate. Research and plan .. Use VSCode Liveshare for pairing sessions
  - Create and use a project virtual environment
@@ -107,6 +78,7 @@ You will submit a link to a github repository named backend-slacktweet-assessmen
  - Use your IDE and debugger to run, step, and view
  - Use local environment variables for API tokens and keys
  - Use python logging (not print statements) for all output messages.
+
 ### Repo Best Practices
  - Have a descriptive top-level README.md.  If you don't know what a good README looks like, google "README best practices"
  - `.gitignore` is present, ingorning `.vscode/` and `.env` and `.log` and `venv/`
@@ -116,13 +88,13 @@ You will submit a link to a github repository named backend-slacktweet-assessmen
  - Don't commit log files or virtual envs to the repo!
 
 **Logging** - Your Slacktweet app should log to both the console and a file.  Low-frequency events should be logged at INFO level, and high-frequency at DEBUG.  Exception handlers should log at ERROR or above for anything unhandled. Other levels are self-explanatory.  Use an environment variable to select logging output level when your Bot starts.  Log startup and shutdown events, as well as slack client connection info and any disconnect events.  Log every message that your Bot receives and sends to the Slack API.  Manage your file logging with some kind of time rotation or deleting schedule so that logs do not grow unbounded.  The Python logging module has built-in ways to do this.
+
 **OS Signal Handling** - Your Bot should handle SIGTERM and SIGINT just like in the Dirwatcher assignment.  Log every OS signal that your Bot receives.  In a free-dyno Heroku deployment, your program WILL receive a SIGTERM at least once per day, when it wants your Bot to go to sleep.  Take that opportunity to gracefully close any open connections to Slack or other API and send a buh-bye message.
-**Exception Handling** - Bot should not ever exit unless it is requested (either by user command or OS signal).  Your Bot should handle exceptions in order from most detailed (narrow, specific) to most broad.  Unhandled exceptions (the ones without specific handlers) should log full stack traces.  Strive for high availability by running your Bot in a local test environment for as long as you can.  We have a linux desktop server on site for this. Harden against wifi outages and whimsical disconnections of your slack and twitter clients by inserting exception handlers for specific cases you encounter.  When you catch an unhandled exception, pause for a few seconds before restarting your loop.  Don't spam the logs with a ton of "Restarting ..." messages-- allow a few moments for the OS process manager to send your Bot a SIGINT or SIGTERM if the process monitor thinks that Bot is misbehaving.  You can test your exception handler by adding a special bot command of your own design, that will manually raise any exception from within your program.   Hint:  this uses the `raise` Python function ..
+
+**Exception Handling** - Bot should not ever exit unless it is requested (either by user command or OS signal).  Your Bot should handle exceptions in order from most detailed (narrow, specific) to most broad.  Unhandled exceptions (the ones without specific handlers) should log full stack traces.  Strive for high availability by running your Bot in a local test environment for as long as you can.  We have a linux desktop server on site for this. Harden against wifi outages and whimsical disconnections of your slack and twitter clients by inserting exception handlers for specific cases you encounter.  When you catch an unhandled exception, pause for a few seconds before restarting your loop.  Don't spam the logs with a ton of "Restarting ..." messages-- allow a few moments for the OS process manager to send your Bot a SIGINT or SIGTERM if the process monitor thinks that Bot is misbehaving.  You can test your exception handler by adding a special bot command of your own design, that will manually raise any exception from within your program.   Hint:  This uses the `raise` Python function ..
 
 ## Demos
-Group demos of their slacktweet projects are TBD depending on how fast the end of quarter is approaching.  Please see your instructor if you would like to demo a cool extra feature that you added to your app.  Otherwise, we'll mostly be seeing the fruits of your project effort unfold before us, in the KenzieBot and KenzieBot2 slack workspaces.
+Group demos of their slackbot projects are TBD depending on how fast the end of quarter is approaching.  Please see your instructor if you would like to demo a cool extra feature that you added to your app.  Otherwise, we'll mostly be seeing the fruits of your project effort unfold before us, in the KenzieBot and KenzieBot2 slack workspaces.
 
 ## Final Words
 This assignment brings together many concepts that you have learned in the preceding months.  While it is not an SE capstone project, it does have significant point value and we encourage your team to get started early.  Good Luck!!
-
-
