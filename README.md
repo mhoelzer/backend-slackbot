@@ -1,4 +1,4 @@
-![](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Slack_Technologies_Logo.svg/2000px-Slack_Technologies_Logo.svg.png)
+<img align=left width=200 src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Slack_Technologies_Logo.svg/2000px-Slack_Technologies_Logo.svg.png" /><br clear=left>
 
 In the next few days we are going to explore building a [Slackbot](https://www.entrepreneur.com/article/302409) using Python.  Of course there are many third-party platforms out there that can automate the process of creating AI-driven bots. But as emerging software engineers, we understand that by diving deep and exploring the nuts and bolts, we acquire a rich knowledge of _how_ things work which will serve us well in the future, as well as honing our set of general best practices.  Phase 1 is NOT a one-day assignment-- you will be researching, planning, and experimenting and task-switching between other activities this week.
 
@@ -7,11 +7,10 @@ This assignment integrates many concepts that you have learned over the last few
 ### Phase 1: Bare Bones Bot
 
 Your first implementation of the bot will run on your local development machine, and should be able to perform these basic functions:
-*   Make sure you use python classes and objects when you implement. [Here](https://github.com/KenzieAcademy/backend-slackbot/) is a starter code and some suggested methods 
-*   Connect your app to the [KenzieBot](https://kenziebot.slack.com) workspace as a bot user
-*   Send a message to a channel announcing that it is online
-*   Wait for and process events/messages in an infinite while-loop
-*   Ignore any messages that don't contain a direct \`@mention\` of your bot name
+*   Connect your app to the [KenzieBot](https://kenziebot.slack.com) or [KenzieBot2](https.kenziebot2.slack.com) workspace as a bot user
+*   Send a message to a default channel announcing that your bot is online
+*   Wait for and process slack events/messages in an infinite while-loop
+*   Ignore any messages that don't contain a direct `@mention` of your bot name
 *   Exit your bot program if you receive an exit message.  For example, if your bot is named \`example-bot\` then your program should exit gracefully when it receives a slack message such as \`@example-bot exit\`
 
 ### Guidance Notes
@@ -78,7 +77,3 @@ Tips for Getting Started 
 *   Try out the simple yet elegant **[python-dotenv](https://github.com/theskumar/python-dotenv)** package to help load your environment variables from within python.
 *   Ask for instructor or team help if you get stuck.  Ask in Cohort slack channel so all may benefit, if you feel comfortable.
 
-And Finally ... 
-----------------
-
-[RIGHT THEN!   OFF YOU GO!](https://www.youtube.com/watch?v=nLJ8ILIE780)
