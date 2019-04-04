@@ -4,14 +4,33 @@ In the next few days we are going to explore building a [Slackbot](https://www.
 
 This assignment integrates many concepts that you have learned over the last few weeks.  In the end, you will have created a slackbot framework that you can take with you to extend, adapt, and reuse in many ways.
 
-### Phase 1: Bare Bones Bot
+### Learning Objectives
+ - Become comfortable with self-guided API research and experimentation
+ - Create, test, deploy, manage a long running program in a cloud environment 
+ - Apply best practices in repository structure
+ - Use a virtual environment on a project
+ - Learn how to create an integration between two APIs
 
-Your first implementation of the bot will run on your local development machine, and should be able to perform these basic functions:
-*   Connect your app to the [KenzieBot](https://kenziebot.slack.com) or [KenzieBot2](https.kenziebot2.slack.com) workspace as a bot user
-*   Send a message to a default channel announcing that your bot is online
-*   Wait for and process slack events/messages in an infinite while-loop
-*   Ignore any messages that don't contain a direct `@mention` of your bot name
-*   Exit your bot program if you receive an exit message.  For example, if your bot is named \`example-bot\` then your program should exit gracefully when it receives a slack message such as \`@example-bot exit\`
+### Goal
+The goal is to create a long-running Slackbot that responds to user commands, and integrates to a secondary API to acquire data.  The secondary API choice is up to the student, and can be any open api that provides some interesting data that can be present in a slack channel and does not require a paid subscription.  A list of public APIs is available [here](https://github.com/toddmotto/public-apis)
+
+### Setup - Slack
+For this assignment, we will be using two separate, private Slack Team accounts.  These accounts are only used by the SE cohorts for this assignment, there are no other users.  The reason for using two separate accounts is because Slack free team accounts limit the number of app integrations to max of 10.  Please ask your instructor to send you the self signup links when you are ready.  Once you are in, send a msg to your instructor to ask for admin privilege.  You will need `admin` to create a bot application.
+
+
+### Part A: Slackbot Client
+ - Create a virtual environment for your project
+ - Install the [slackclient](https://python-slackclient.readthedocs.io/en/latest/) python library in your virtual environment.
+ - Implement your slackbot using a Python class object.  Starter code is available in [slackbot.py](.slackbot.py)
+ - Connect your app to one of the KenzieBot workspaces as a bot user
+ - Send a message to a default channel announcing that your bot is online
+ - Wait for and process events/messages in an infinite while-loop
+ - Ignore any messages that don't contain a direct `@mention` of your bot name
+ - Create a command parser that can act upon any command directed at your bot.
+ - Exit your bot program if you receive an exit message.  For example, if your bot is named `example-bot` then your program should exit gracefully when it receives a slack message such as `@example-bot exit`
+
+### Part B: API Integration
+Now that you have a working Slack client that responds to commands, connect it to another API.  Fetch a picture, or a stock price, or the weather forecast or a traffic report.  Have the bot render the data back to the slack channel.
 
 ### Guidance Notes
 
@@ -44,24 +63,25 @@ This assignment will be more of a free-form creative endeavor than in your previ
 *   [Small commits](https://blog.hartleybrody.com/git-small-teams/)
 *   LICENSE file
 
-### **Deployment Details**
+### Deployment Details
 
 NOTE: This section assumes that you have already created a Heroku account from previous assignments, and you have the [Heroku CLI tools](https://devcenter.heroku.com/articles/heroku-cli) installed on your local development machine.  
-Most of the python Heroku deployment examples on the internet assume that you are developing a web app, but in this case you are deploying a simple standalone python script without a framework or WSGI gateway.  In order to deploy your bot to Heroku, your github repo must contain some special files named \`Procfile\` and \`runtime.txt\`.  Procfile tells Heroku which program to run when you activate your free dyno instance.  Procfile contents should look like this:
+Most of the python Heroku deployment examples on the internet assume that you are developing a web app, but in this case you are deploying a simple standalone python script without a framework or [WSGI gateway](https://www.fullstackpython.com/wsgi-servers.html).  In order to deploy your bot to Heroku, your github repo must contain some special files named `Procfile` and `runtime.txt`.  Procfile tells Heroku which program to run when you activate your free dyno instance.  Procfile contents should look like this:
 
-worker: python slackbot.py
+    worker: python slackbot.py
 
-Runtime.txt tells Heroku which python interpreter version to use, when it constructs a docker image for your slackbot.  You should select a version that matches the one that you used while developing in your virtual environment.  See which python versions are supported by Heroku [here](https://devcenter.heroku.com/articles/python-runtimes).  Sample contents of \`runtime.txt\`:
+Runtime.txt tells Heroku which python interpreter version to use, when it constructs a docker image for your slackbot.  You should select a version that matches the one that you used while developing in your virtual environment.  See which python versions are supported by Heroku [here](https://devcenter.heroku.com/articles/python-runtimes).  Sample contents of `runtime.txt`:
 
-python-3.6.6
+    python-3.6.6
 
 Your slackbot application is designed to be long-running, so it seems natural to try and deploy it on a cloud hosting platform such as Heroku.  However, Heroku limits the free-tier cloud hosting 'dynos' to a maximum uptime of 18 hours per 24-hour period.  So your bot will be forcibly euthanized every so often (unless you upgrade to Hobby tier -- $7.00/month). 
 
-    heroku create my_unique_slackbot_namegit push heroku master
+    heroku create my_unique_slackbot_name
+    git push heroku master
 
 Remember that your .env file should contain your slackbot API tokens, and it should not be part of your repo (that is, .env should be listed in your .gitignore).  You will need to copy your API tokens directly into Heroku config vars:
 
-heroku config:set BOT\_USER\_TOKEN="xoxb-431941958864-124971466353-2Ysn7vyHOUkzjcABC76Tafrq"
+    heroku config:set BOT\_USER\_TOKEN="xoxb-431941958864-124971466353-2Ysn7vyHOUkzjcABC76Tafrq"
 
 Now everything should be ready to run.  Start up your slackbot and check the logs:
 
