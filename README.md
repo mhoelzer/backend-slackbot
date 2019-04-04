@@ -21,7 +21,7 @@ For this assignment, we will be using two separate, private Slack Team accounts.
 ### Part A: Slackbot Client
  - Create a virtual environment for your project
  - Install the [slackclient](https://python-slackclient.readthedocs.io/en/latest/) python library in your virtual environment.
- - Implement your slackbot using a Python class object.  Starter code is available in [slackbot.py](.slackbot.py)
+ - Implement your slackbot using a Python class object.  Starter code is available in [slackbot.py](slackbot.py)
  - Connect your app to one of the KenzieBot workspaces as a bot user
  - Send a message to a default channel announcing that your bot is online
  - Wait for and process events/messages in an infinite while-loop
