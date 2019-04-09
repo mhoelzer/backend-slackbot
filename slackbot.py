@@ -96,6 +96,21 @@ def command_loop(bot):
     pass
 
 
+def fetch_swanson():
+    """"""
+    pass
+
+
+def fetch_cat():
+    """"""
+    pass
+
+
+def combine_swanson_cat():
+    """"""
+    pass
+
+
 def signal_handler(sig_num, frame):
     """"""
     logger.warning("Received {}".format(sig_num))
@@ -120,7 +135,7 @@ class SlackBot:
             users = api_call.get('members')
             for user in users:
                 if 'name' in user and user.get('name') == self.bot_name:
-                    return "<@" + user.get('id') + ">"
+                    return "<@{}>".format(user.get('id'))
             return None
 
     def __repr__(self):
