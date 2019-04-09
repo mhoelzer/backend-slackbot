@@ -13,28 +13,92 @@ This is in Python3
 
 __author__ = "mhoelzer and LEllingwood"
 
-# import argparse
-# import logging
-# import signal
-# import sys
-# import os
 
-BOT_NAME = "my-bot-name"
-BOT_CHAN = "#bot-test"
+import logging
+import signal
+import sys
+import requests
+import datetime
+import re
+import os
+from slackclient import SlackClient
+
+BOT_NAME = "the_swanson"
+BOT_CHANNEL = "#the_swanson_channel"  # try to get it into other channels, too
+# import .env; local from file, but token goes in heroku connfig vars
+SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
+
+# instantiate Slack client
+slack_client = SlackClient(os.environ.get("SLACK_BOT_TOKEN"))
+# starterbot's user ID in Slack: value is assigned after the bot starts up
+# starterbot_id = None
+
+# constants
+RTM_READ_DELAY = 1  # 1 second delay between reading from RTM
+# EXAMPLE_COMMAND = "do"
+MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
+exit_flag = False
 
 
 def config_logger():
     """Setup logging configuration"""
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    file_handler = logging.FileHandler("the_swanson.log")
+    formatter = logging.Formatter(
+        fmt=("%(asctime)s %(msecs)03d %(name)s %(levelname)s [%(threadName)s]:"
+             " %(message)s"),
+        datefmt="%Y-%m-%d, %H:%M:%S")
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+    return logger
+
+
+logger = config_logger()
+
+
+bot_commands = {
+    "help":  "Shows this helpful command reference.",
+    "ping":  "Show uptime of this bot.",
+    "exit":  "Shutdown the entire bot (requires app restart).",
+    "raise":  "Manually test exception handler."
+}
+
+
+def formatted_dict(dicty_doo, k_header="Keys", v_header="Values"):
+    """Renders contents of a dict into a preformatted string"""
+    if dicty_doo:
+        lines = []
+        # find the longest key entry in d or the key header string
+        width = max(map(len, dicty_doo))
+        width = max(width, len(k_header))
+        lines.extend(["{k:<{w}} : {v}".format(
+            k=k_header, v=v_header, w=width)])
+        lines.extend(["-"*width + "   " + "-"*len(v_header)])
+        lines.extend("{k:<{w}} : {v}".format(k=k, v=v, w=width)
+                     for k, v in dicty_doo.items())
+        return "\n".join(lines)
+    return "<empty>"
 
 
 def command_loop(bot):
     """Process incoming bot commands"""
+    if bot_commands[0]:
+        print(formatted_dict(bot_commands,
+                             k_header="My cmds", v_header="What they do"))
     pass
 
 
 def signal_handler(sig_num, frame):
     """"""
-    pass
+    logger.warning("Received {}".format(sig_num))
+    global exit_flag  # need to specify this as global in order to be used here
+    exit_flag = True
 
 
 class SlackBot:
@@ -59,7 +123,7 @@ class SlackBot:
         """Implement this method to make this a context manager"""
         pass
 
-    def post_message(self, msg, chan=BOT_CHAN):
+    def post_message(self, msg, chan=BOT_CHANNEL):
         """Sends a message to a Slack Channel"""
         pass
 
@@ -68,54 +132,10 @@ class SlackBot:
         pass
 
 
-bot_commands = {
-    "help":  "Shows this helpful command reference.",
-    "ping":  "Show uptime of this bot.",
-    "exit":  "Shutdown the entire bot (requires app restart)",
-    "raise":  "Manually test exception handler"
-}
-
-
-def formatted_dict(dicty_doo, k_header="Keys", v_header="Values"):
-    """Renders contents of a dict into a preformatted string"""
-    if dicty_doo:
-        lines = []
-        # find the longest key entry in d or the key header string
-        width = max(map(len, dicty_doo))
-        width = max(width, len(k_header))
-        lines.extend(["{k:<{w}} : {v}".format(
-            k=k_header, v=v_header, w=width)])
-        lines.extend(["-"*width + "   " + "-"*len(v_header)])
-        lines.extend("{k:<{w}} : {v}".format(k=k, v=v, w=width)
-                     for k, v in d.items())
-        return "\n".join(lines)
-    return "<empty>"
-
-
-print(formatted_dict(bot_commands, k_header="My cmds", v_header="What they do"))
-
-
-# def create_parser():
-#     """creates and returns an argparse cmd line option parser"""
-#     parser = argparse.ArgumentParser(description="rnsfjnslfdnswnfeln.")
-#     parser.add_argument("help", help="Lists all the commands that this bot understands")
-#     parser.add_argument("ping", help="Shows the uptime of this bot")
-#     parser.add_argument("exit", help="Shuts down this bot (requires app restart)")
-#     parser.add_argument("quit", help="Same as exit")
-#     parser.add_argument("clear", help="Remove all filters")
-#     return parser
-
-
 def main():
     """"""
-    # parser = create_parser()
-    # args = parser.parse_args(args)
-    # if not args:
-    #     parser.print_usage()
-    #     sys.exit(1)
     pass
 
 
 if __name__ == "__main__":
-    # main(sys.argv[1:])
     main()
