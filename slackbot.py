@@ -18,7 +18,9 @@ import logging
 import signal
 import sys
 import requests
-import datetime
+import json
+# import datetime
+import time
 import re
 import os
 from slackclient import SlackClient
@@ -105,7 +107,21 @@ class SlackBot:
 
     def __init__(self, bot_user_token, bot_id=None):
         """Create a client instance"""
-        pass
+        self.slack_client = SlackClient(SLACK_BOT_TOKEN)
+        self.bot_name = BOT_NAME
+        self.bot_id = self.get_bot_id()
+        if self.bot_id is None:
+            exit("err no {}".format(self.bot_name))
+
+    def get_bot_id(self):
+        api_call = self.slack_client.api_call("users.list")
+        if api_call.get('ok'):
+            # retrieve all users so we can find our bot
+            users = api_call.get('members')
+            for user in users:
+                if 'name' in user and user.get('name') == self.bot_name:
+                    return "<@" + user.get('id') + ">"
+            return None
 
     def __repr__(self):
         """"""
@@ -129,12 +145,21 @@ class SlackBot:
 
     def handle_command(self, raw_cmd, channel):
         """Parses a raw command string from the bot"""
+        if raw_cmd in bot_commands:
+            pass
         pass
 
 
 def main():
     """"""
-    pass
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    bot = SlackBot(SLACK_BOT_TOKEN)
+    if slack_client.rmt_connect(with_team_sate=False):
+        print("Stuff connected with {}".format(bot))
+        while not exit_flag:
+            command_loop(bot)
+            time.sleep(RTM_READ_DELAY)
 
 
 if __name__ == "__main__":
