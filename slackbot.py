@@ -201,8 +201,8 @@ def main():
     global slack_client
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    bot = slack_client
-    if slack_client.rtm_connect(with_team_sate=False):
+    bot = SlackBot(slack_client)
+    if slack_client.rtm_connect(with_team_state=False):
         print("Stuff connected with {}".format(bot))
         while not exit_flag:
             command_loop(bot)
