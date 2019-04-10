@@ -1,8 +1,8 @@
 <img align=left width=200 src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Slack_Technologies_Logo.svg/2000px-Slack_Technologies_Logo.svg.png" /><br clear=left>
 
-In the next few days we are going to explore building a [Slackbot](https://www.entrepreneur.com/article/302409) using Python.  Of course there are many third-party platforms out there that can automate the process of creating AI-driven bots. But as emerging software engineers, we understand that by diving deep and exploring the nuts and bolts, we acquire a rich knowledge of _how_ things work which will serve us well in the future, as well as honing our set of general best practices.  Phase 1 is NOT a one-day assignment-- you will be researching, planning, and experimenting and task-switching between other activities this week.
+In the next few days we are going to explore building a [Slackbot](https://www.entrepreneur.com/article/302409) using Python. Of course there are many third-party platforms out there that can automate the process of creating AI-driven bots. But as emerging software engineers, we understand that by diving deep and exploring the nuts and bolts, we acquire a rich knowledge of _how_ things work which will serve us well in the future, as well as honing our set of general best practices. Phase 1 is NOT a one-day assignment-- you will be researching, planning, and experimenting and task-switching between other activities this week.
 
-This assignment integrates many concepts that you have learned over the last few weeks.  In the end, you will have created a slackbot framework that you can take with you to extend, adapt, and reuse in many ways.
+This assignment integrates many concepts that you have learned over the last few weeks. In the end, you will have created a Slackbot framework that you can take with you to extend, adapt, and reuse in many ways.
 
 ### Learning Objectives
  - Become comfortable with self-guided API research and experimentation
@@ -39,24 +39,24 @@ Now that you have a working Slack client that responds to commands, connect it t
 ### Deployment Details
 
 NOTE: This section assumes that you have already created a Heroku account from previous assignments, and you have the [Heroku CLI tools](https://devcenter.heroku.com/articles/heroku-cli) installed on your local development machine.  
-Most of the python Heroku deployment examples on the internet assume that you are developing a web app, but in this case you are deploying a simple standalone python script without a framework or [WSGI gateway](https://www.fullstackpython.com/wsgi-servers.html).  In order to deploy your bot to Heroku, your github repo must contain some special files named `Procfile` and `runtime.txt`.  Procfile tells Heroku which program to run when you activate your free dyno instance.  Procfile contents should look like this:
+Most of the python Heroku deployment examples on the internet assume that you are developing a web app, but in this case you are deploying a simple standalone python script without a framework or [WSGI gateway](https://www.fullstackpython.com/wsgi-servers.html). In order to deploy your bot to Heroku, your github repo must contain some special files named `Procfile` and `runtime.txt`. Procfile tells Heroku which program to run when you activate your free dyno instance. Procfile contents should look like this:
 
     worker: python slackbot.py
 
-Runtime.txt tells Heroku which python interpreter version to use, when it constructs a docker image for your slackbot.  You should select a version that matches the one that you used while developing in your virtual environment.  See which python versions are supported by Heroku [here](https://devcenter.heroku.com/articles/python-runtimes).  Sample contents of `runtime.txt`:
+Runtime.txt tells Heroku which python interpreter version to use, when it constructs a docker image for your slackbot. You should select a version that matches the one that you used while developing in your virtual environment. See which python versions are supported by Heroku [here](https://devcenter.heroku.com/articles/python-runtimes). Sample contents of `runtime.txt`:
 
     python-3.7.2
 
-Your slackbot application is designed to be long-running, so it seems natural to try and deploy it on a cloud hosting platform such as Heroku.  However, Heroku limits the free-tier cloud hosting 'dynos' to a maximum uptime of 18 hours per 24-hour period.  So your bot will be forcibly euthanized every so often (unless you upgrade to Hobby tier -- $7.00/month). 
+Your slackbot application is designed to be long-running, so it seems natural to try and deploy it on a cloud hosting platform such as Heroku. However, Heroku limits the free-tier cloud hosting 'dynos' to a maximum uptime of 18 hours per 24-hour period. So your bot will be forcibly euthanized every so often (unless you upgrade to Hobby tier -- $7.00/month). 
 
     heroku create my_unique_slackbot_name
     git push heroku master
 
-Remember that your .env file should contain your slackbot API tokens, and it should not be part of your repo (that is, .env should be listed in your .gitignore).  You will need to copy your API tokens directly into Heroku config vars:
+Remember that your .env file should contain your slackbot API tokens, and it should not be part of your repo (that is, .env should be listed in your .gitignore). You will need to copy your API tokens directly into Heroku config vars:
 
     heroku config:set BOT_USER_TOKEN="xoxb-431941958864-124971466353-2Ysn7vyHOUkzjcABC76Tafrq"
 
-Now everything should be ready to run.  Start up your slackbot and check the logs:
+Now everything should be ready to run. Start up your slackbot and check the logs:
 
     heroku ps:scale worker=1
 
@@ -82,7 +82,7 @@ You will submit a link to a github repository, but you will create and curate th
 
 ### Repo Best Practices
  - Have a descriptive top-level README.md.  If you don't know what a good README looks like, google "README best practices"
- - `.gitignore` is present, ingorning `.vscode/` and `.env` and `.log` and `venv/`
+ - `.gitignore` is present, ignoring `.vscode/` and `.env` and `.log` and `venv/`
  - `requirements.txt` from pip freeze
  - No hard-coded API keys or tokens anywhere.  [**DO NOT LEAK TOKENS**](https://labs.detectify.com/2016/04/28/slack-bot-token-leakage-exposing-business-critical-information/)
  - [Small commits](https://blog.hartleybrody.com/git-small-teams/) with meaningful messages-- not "more changes" or "blah foo bar" or "asdfadfadfadfadfasdfasdf"
