@@ -24,11 +24,12 @@ import time
 import re
 import os
 from slackclient import SlackClient
+from dotenv import load_dotenv
 
 BOT_NAME = "the_swanson"
 BOT_CHANNEL = "#the_swanson_channel"  # try to get it into other channels, too
 # import .env; local from file, but token goes in heroku connfig vars
-SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
+# SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
 
 # instantiate Slack client
 slack_client = SlackClient(os.environ.get("SLACK_BOT_TOKEN"))
@@ -40,6 +41,8 @@ RTM_READ_DELAY = 1  # 1 second delay between reading from RTM
 # EXAMPLE_COMMAND = "do"
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 exit_flag = False
+
+load_dotenv()
 
 
 def config_logger():
@@ -97,13 +100,19 @@ def command_loop(bot):
 
 
 def fetch_swanson():
-    """"""
-    pass
+    """Gets random Ron Swanson quotes from API"""
+    r = requests.get('https://ron-swanson-quotes.herokuapp.com/v2/quotes')
+    if r.status_code != 200:
+        print("Got a problem, son")
+    r = r.json()
+    print(r)
 
 
 def fetch_cat():
-    """"""
-    pass
+    """Gets random cat images from API"""
+    url = 'https://api.thecatapi.com/v1/images/search'
+    cat_img = requests.get(url).json()
+    return cat_img[0]['url']
 
 
 def combine_swanson_cat():
@@ -119,28 +128,29 @@ def signal_handler(sig_num, frame):
 
 
 class SlackBot:
+    global slack_client
 
     def __init__(self, bot_user_token, bot_id=None):
         """Create a client instance"""
-        self.slack_client = SlackClient(SLACK_BOT_TOKEN)
+        self.slack_client = slack_client
         self.bot_name = BOT_NAME
         self.bot_id = self.get_bot_id()
         if self.bot_id is None:
-            exit("err no {}".format(self.bot_name))
+            exit(f"err no {self.bot_name}")
 
     def get_bot_id(self):
         api_call = self.slack_client.api_call("users.list")
-        if api_call.get('ok'):
+        if api_call.get("ok"):
             # retrieve all users so we can find our bot
-            users = api_call.get('members')
+            users = api_call.get("members")
             for user in users:
-                if 'name' in user and user.get('name') == self.bot_name:
-                    return "<@{}>".format(user.get('id'))
+                if "name" in user and user.get("name") == self.bot_name:
+                    return "<@{}>".format(user.get("id"))
             return None
 
     def __repr__(self):
         """"""
-        pass
+        return f"SlackBot: {self.bot_name} {self.bot_id}"
 
     def __str__(self):
         """"""
@@ -154,27 +164,51 @@ class SlackBot:
         """Implement this method to make this a context manager"""
         pass
 
+    def parse_commands(self, slack_events):
+        """"""
+        for slack_event in slack_events:
+            slack_event_gotten = slack_event.get("type")
+            if slack_event_gotten == "message" and "subtype" not in slack_event:
+                user_id, message = self.parse_mention(
+                    slack_event_gotten)
+                if user_id == self.bot_id:
+                    return message, slack_event["channel"]
+        return None, None
+
+    def parse_mention(self, text):
+        matches = re.search(MENTION_REGEX, text)
+        # the first group contains the username, the second group contains the remaining message
+        return (matches.group(1), matches.group(2).strip()) if matches else (None, None)
+
     def post_message(self, msg, chan=BOT_CHANNEL):
         """Sends a message to a Slack Channel"""
         pass
 
     def handle_command(self, raw_cmd, channel):
         """Parses a raw command string from the bot"""
-        if raw_cmd in bot_commands:
-            pass
+        if raw_cmd.startswith("hey"):
+            response = "Sure...write some more code then I can do that!"
+        slack_client.api_call(
+            "chat.postMessage",
+            channel=channel,
+            text=response
+        )
         pass
 
 
 def main():
     """"""
+    global slack_client
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    bot = SlackBot(SLACK_BOT_TOKEN)
-    if slack_client.rmt_connect(with_team_sate=False):
+    bot = slack_client
+    if slack_client.rtm_connect(with_team_sate=False):
         print("Stuff connected with {}".format(bot))
         while not exit_flag:
             command_loop(bot)
             time.sleep(RTM_READ_DELAY)
+    else:
+        print("Connection failed :(")
 
 
 if __name__ == "__main__":
