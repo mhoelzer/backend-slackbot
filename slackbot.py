@@ -16,12 +16,9 @@ __author__ = "mhoelzer and LEllingwood"
 
 import logging
 import signal
-import sys
 import requests
-import json
 import datetime
 import time
-import re
 import os
 from slackclient import SlackClient
 from dotenv import load_dotenv
@@ -42,13 +39,15 @@ def config_logger():
     """Setup logging configuration"""
     logger = logging.getLogger(__name__)
     logging.basicConfig(
-        level=logging.INFO, 
-        format="%(asctime)s %(msecs)03d %(name)s %(levelname)s [%(threadName)s]:%(message)s",
+        level=logging.INFO,
+        format="%(asctime)s %(msecs)03d %(name)s %(levelname)s \
+            [%(threadName)s]:%(message)s",
         datefmt="%Y-%m-%d, %H:%M:%S")
     logger.setLevel(logging.DEBUG)
     # file_handler = logging.FileHandler("the_swanson.log")
     # formatter = logging.Formatter(
-    #     fmt=("%(asctime)s %(msecs)03d %(name)s %(levelname)s [%(threadName)s]:"
+    #     fmt=("%(asctime)s %(msecs)03d %(name)s %(levelname)s \
+    # [%(threadName)s]:"
     #          " %(message)s"),
     #     datefmt="%Y-%m-%d, %H:%M:%S")
     # file_handler.setFormatter(formatter)
@@ -104,8 +103,9 @@ def command_loop(bot):
 def fetch_swanson():
     """Gets random Ron Swanson quotes from API"""
     r = requests.get('https://ron-swanson-quotes.herokuapp.com/v2/quotes')
-    if r.status_code != 200:
-        print("Got a problem, son")
+    # if r.status_code != 200:
+    #     print("Got a problem, son")
+    r.raise_for_status()
     r = r.json()
     return str(r[0])
 
@@ -113,12 +113,13 @@ def fetch_swanson():
 def fetch_cat():
     """Gets random cat images from API"""
     url = 'https://api.thecatapi.com/v1/images/search'
-    cat_img = requests.get(url).json()
-    return cat_img[0]['url']
+    r = requests.get(url).json()
+    r.raise_for_status()
+    return r[0]['url']
 
 
 def signal_handler(sig_num, frame):
-    """"""
+    """Handles incoming signals"""
     logger.warning("Received {}".format(sig_num))
     global exit_flag  # need to specify this as global in order to be used here
     exit_flag = True
@@ -135,7 +136,8 @@ class SlackBot:
         # self.slack_client = slack_client
         self.bot_id = bot_id
         # find id
-        if not self.bot_id and self.slack_client.rtm_connect(with_team_state=False):
+        if not self.bot_id and \
+                self.slack_client.rtm_connect(with_team_state=False):
             # Read bot's user ID by calling Web API method `auth.test`
             response = self.slack_client.api_call('auth.test')
             self.bot_id = response.get('user_id')
@@ -143,11 +145,11 @@ class SlackBot:
         logger.info(f'{self.bot_name} Created new SlackBot')
 
     def __repr__(self):
-        """"""
+        """Identifies bot"""
         return f"{self.at_bot}"
 
     def __str__(self):
-        """"""
+        """Identifies bot (meant for end user)"""
         return f"{self.at_bot}"
 
     def __enter__(self):
@@ -164,18 +166,19 @@ class SlackBot:
         self.post_message("goodbye")
 
     def parse_slack_events(self):
-        """listens to slack events for our bot's name; returns command in channel"""
-        slack_events = self.slack_client.rtm_read() #command listnen
+        """Listens to slack events for our bot's name; \
+            returns command in channel"""
+        slack_events = self.slack_client.rtm_read()  # command listnen
         for slack_event in slack_events:
             slack_event_gotten = slack_event.get("type")
-            if slack_event_gotten == "message" and "subtype" not in slack_event:
+            if slack_event_gotten == "message" and \
+                    "subtype" not in slack_event:
                 if slack_event["text"].startswith(self.at_bot):
                     chan = slack_event["channel"]
                     command = slack_event["text"][len(self.at_bot) + 1:]
                     logger.info(f"got command {command} on channel {chan}")
                     return chan, command
         return None, None
-
 
     def post_message(self, msg, chan=BOT_CHANNEL):
         """Sends a message to a Slack Channel"""
@@ -185,52 +188,70 @@ class SlackBot:
             text=msg
         )
 
-
     def handle_command(self, chan, command):
         """
         Executes bot command if the command is known
         """
         # Default response is help text for the user
         logger.info(f"received command {command} on channel {chan}")
-        default_response = "Not sure what you mean. Try *{}*.".format(
-            EXAMPLE_COMMAND)
         cmd = command.split()[0]
-        if cmd not in bot_commands or cmd ==  'help':
-            help_text = formatted_dict(bot_commands, k_header="Swanson command", v_header="The Meaning of Swanson")
-            response = f'stop being dense. Try one of these: \n ```{help_text}```'
+        if cmd not in bot_commands or cmd == 'help':
+            help_text = formatted_dict(
+                bot_commands, k_header="Swanson command", v_header="The \
+                        Meaning of Swanson")
+            response = f'stop being dense. Try one of \
+                    these: \n ```{help_text}```'
 
         if cmd == 'ping':
             uptime = (datetime.datetime.now() - self.bot_start).total_seconds()
-            response = f'Swanson lives, and has done so for {uptime: .3f} seconds, dummy.'
+            response = f'Swanson lives, and has done so \
+                    for {uptime: .3f} seconds, dummy.'
 
         if cmd == 'exit':
             response = f'Swanson out.'
             global exit_flag
             exit_flag = True
-        
+
         if cmd == 'speak':
             response = fetch_swanson()
 
         if cmd == 'see':
             response = fetch_cat()
-        
+
         if cmd == 'meme':
-            response = fetch_swanson()+ fetch_cat()
+            response = fetch_swanson() + fetch_cat()
+        
+        if cmd == 'raise':
+            raise Exception("user-generated exception")
 
         if response:
             self.post_message(response, chan)
 
+
 def main():
-    """"""
+    """
+    Runs the bot and it's commands as a long running program
+    watches for sigint/sigterm signals
+    """
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+    exception_flag = False
+
     with SlackBot("SLACK_BOT_TOKEN") as bot:
         while not exit_flag:
-            command_loop(bot)
+            try:   
+                if exception_flag:
+                    # TODO: fetch the last X number of lines in the log to show the user
+                    bot.post_message("YOU TRIED TO KILL ME! I WILL NEVER DIE!")
+                exception_flag = False
+                command_loop(bot)
+                logger.debug("while loop")
+            except Exception as e:
+                logger.error(str(e))
+                logger.error('You tried to kill me.  I will come back in 5 seconds')
+                exception_flag = True
+                time.sleep(5)
             time.sleep(RTM_READ_DELAY)
-            logger.debug("while loop")
-            pass
-
 
 if __name__ == "__main__":
     main()
