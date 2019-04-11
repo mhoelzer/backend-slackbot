@@ -19,7 +19,7 @@ import signal
 import sys
 import requests
 import json
-# import datetime
+import datetime
 import time
 import re
 import os
@@ -28,12 +28,6 @@ from dotenv import load_dotenv
 
 BOT_NAME = "the_swanson"
 BOT_CHANNEL = "#the_swanson_channel"  # try to get it into other channels, too
-# import .env; local from file, but token goes in heroku connfig vars
-# SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
-
-# instantiate Slack client
-# slack_client = SlackClient(os.environ.get("SLACK_BOT_TOKEN"))
-# starterbot's user ID in Slack: value is assigned after the bot starts up
 starterbot_id = None
 
 # constants
@@ -73,9 +67,12 @@ logger = config_logger()
 
 bot_commands = {
     "help":  "Shows this helpful command reference.",
-    "ping":  "Show uptime of this bot.",
+    "ping":  "Show the endurance of The Swanson!",
     "exit":  "Shutdown the entire bot (requires app restart).",
-    "raise":  "Manually test exception handler."
+    "raise":  "Manually test exception handler.",
+    "speak": "Hear The Wisdom",
+    "see": "See The Cat.",
+    "meme": "The Best of Both Worlds."
 }
 
 
@@ -97,12 +94,11 @@ def formatted_dict(dicty_doo, k_header="Keys", v_header="Values"):
 
 def command_loop(bot):
     """Process incoming bot commands"""
-    # if bot_commands[0]:
-    #     print(formatted_dict(bot_commands,
-    #                          k_header="My cmds", v_header="What they do"))
     logger.info("waiting for commands")
     while not exit_flag:
-        chan, command = bot.parse_commands()
+        chan, command = bot.parse_slack_events()
+        if chan and command:
+            bot.handle_command(chan, command)
     logger.info("bot is going out of scope")
 
 
@@ -112,7 +108,7 @@ def fetch_swanson():
     if r.status_code != 200:
         print("Got a problem, son")
     r = r.json()
-    print(r)
+    return str(r[0])
 
 
 def fetch_cat():
@@ -120,11 +116,6 @@ def fetch_cat():
     url = 'https://api.thecatapi.com/v1/images/search'
     cat_img = requests.get(url).json()
     return cat_img[0]['url']
-
-
-def combine_swanson_cat():
-    """"""
-    pass
 
 
 def signal_handler(sig_num, frame):
@@ -165,6 +156,7 @@ class SlackBot:
         if self.slack_client.rtm_connect(with_team_state=False):
             logger.info(f"{self} is connected online")
             self.post_message(f"{self.bot_name} is running")
+        self.bot_start = datetime.datetime.now()
         return self
 
     def __exit__(self, type, value, traceback):
@@ -172,10 +164,9 @@ class SlackBot:
         logger.info(f"{self} is disconnected")
         self.post_message("goodbye")
 
-    def parse_commands(self):
-        """"""
+    def parse_slack_events(self):
+        """listens to slack events for our bot's name; returns command in channel"""
         slack_events = self.slack_client.rtm_read() #command listnen
-        # logger.debug(slack_events)
         for slack_event in slack_events:
             slack_event_gotten = slack_event.get("type")
             if slack_event_gotten == "message" and "subtype" not in slack_event:
@@ -186,11 +177,6 @@ class SlackBot:
                     return chan, command
         return None, None
 
-    def parse_direct_mention(self, text):
-        # the first group contains the username, the second group contains the remaining message
-        # if text.startswith(self.at_bot)
-        # return (matches.group(1), matches.group(2).strip()) if text.startswith(self.at_bot) else (None, None)
-        pass
 
     def post_message(self, msg, chan=BOT_CHANNEL):
         """Sends a message to a Slack Channel"""
@@ -200,31 +186,43 @@ class SlackBot:
             text=msg
         )
 
-    # def wait_for_command(self):
-    #     # wait for something to happen on slack
-    #     response = self.slack_client.rtm_read()
-    #     for item in response:
-    #         if "text" in item and self.at_bot in item["text"]:
 
     def handle_command(self, chan, command):
         """
         Executes bot command if the command is known
         """
         # Default response is help text for the user
+        logger.info(f"received command {command} on channel {chan}")
         default_response = "Not sure what you mean. Try *{}*.".format(
             EXAMPLE_COMMAND)
-        # Finds and executes the given command, filling in response
-        response = None
-        # This is where you start to implement more commands!
-        if command.startswith(EXAMPLE_COMMAND):
-            response = "Sure...write some more code then I can do that!"
-        # help and ping and w/e; set exitflag
-        # Sends the response back to the channel; self.sendmes; hook in api
+        cmd = command.split()[0]
+        if cmd not in bot_commands or cmd ==  'help':
+            help_text = formatted_dict(bot_commands, k_header="Swanson command", v_header="The Meaning of Swanson")
+            response = f'stop being dense. Try one of these: \n ```{help_text}```'
 
+        if cmd == 'ping':
+            uptime = (datetime.datetime.now() - self.bot_start).total_seconds()
+            response = f'Swanson lives, and has done so for {uptime: .3f} seconds, dummy.'
+
+        if cmd == 'exit':
+            response = f'Swanson out.'
+            global exit_flag
+            exit_flag = True
+        
+        if cmd == 'speak':
+            response = fetch_swanson()
+
+        if cmd == 'see':
+            response = fetch_cat()
+        
+        if cmd == 'meme':
+            response = fetch_swanson()+ fetch_cat()
+
+        if response:
+            self.post_message(response, chan)
 
 def main():
     """"""
-    # global slack_client
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     with SlackBot("SLACK_BOT_TOKEN") as bot:
