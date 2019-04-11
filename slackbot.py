@@ -67,7 +67,8 @@ bot_commands = {
     "raise": "Manually test exception handler.",
     "speak": "Hear The Wisdom.",
     "see": "See The Cat.",
-    "meme": "The Best of Both Worlds."
+    "meme": "The Best of Both Worlds.",
+    "suffer": "Suffer :)."
 }
 
 
@@ -217,6 +218,10 @@ class SlackBot:
 
         if cmd == 'meme':
             response = fetch_swanson() + "\n" + fetch_cat()
+
+        if cmd == 'suffer':
+            img = "https://media1.tenor.com/images/d94ef5a9025e88f6ca180284ff3c407e/tenor.gif?itemid=8268738"
+            response = img
 
         if cmd == 'raise':
             raise Exception("user-generated exception")
