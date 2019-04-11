@@ -40,23 +40,20 @@ def config_logger():
     logger = logging.getLogger(__name__)
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s %(msecs)03d %(name)s %(levelname)s \
-            [%(threadName)s]:%(message)s",
+        format=("%(asctime)s %(msecs)03d %(name)s %(levelname)s "
+                "[%(threadName)s]:%(message)s"),
         datefmt="%Y-%m-%d, %H:%M:%S")
     logger.setLevel(logging.DEBUG)
-    # file_handler = logging.FileHandler("the_swanson.log")
-    # formatter = logging.Formatter(
-    #     fmt=("%(asctime)s %(msecs)03d %(name)s %(levelname)s \
-    # [%(threadName)s]:"
-    #          " %(message)s"),
-    #     datefmt="%Y-%m-%d, %H:%M:%S")
-    # file_handler.setFormatter(formatter)
-    # logger.addHandler(file_handler)
 
-    # stream_handler = logging.StreamHandler()
-    # stream_handler.setLevel(logging.DEBUG)
-    # stream_handler.setFormatter(formatter)
-    # logger.addHandler(stream_handler)
+    file_handler = logging.FileHandler("the_swanson.log")
+    formatter = logging.Formatter(
+        fmt=("%(asctime)s %(msecs)03d %(name)s %(levelname)s \
+    [%(threadName)s]:"
+             " %(message)s"),
+        datefmt="%Y-%m-%d, %H:%M:%S")
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
     return logger
 
 
@@ -64,11 +61,11 @@ logger = config_logger()
 
 
 bot_commands = {
-    "help":  "Shows this helpful command reference.",
-    "ping":  "Show the endurance of The Swanson!",
-    "exit":  "Shutdown the entire bot (requires app restart).",
-    "raise":  "Manually test exception handler.",
-    "speak": "Hear The Wisdom",
+    "help": "Shows this helpful command reference.",
+    "ping": "Show the endurance of The Swanson!",
+    "exit": "Shutdown the entire bot (requires app restart).",
+    "raise": "Manually test exception handler.",
+    "speak": "Hear The Wisdom.",
     "see": "See The Cat.",
     "meme": "The Best of Both Worlds."
 }
@@ -92,12 +89,12 @@ def formatted_dict(dicty_doo, k_header="Keys", v_header="Values"):
 
 def command_loop(bot):
     """Process incoming bot commands"""
-    logger.info("waiting for commands")
+    logger.info("Waiting for commands")
     while not exit_flag:
         chan, command = bot.parse_slack_events()
         if chan and command:
             bot.handle_command(chan, command)
-    logger.info("bot is going out of scope")
+    logger.info("Bot is going out of scope")
 
 
 def fetch_swanson():
@@ -114,13 +111,13 @@ def fetch_cat():
     """Gets random cat images from API"""
     url = 'https://api.thecatapi.com/v1/images/search'
     r = requests.get(url).json()
-    r.raise_for_status()
+    # r.raise_for_status()
     return r[0]['url']
 
 
 def signal_handler(sig_num, frame):
     """Handles incoming signals"""
-    logger.warning("Received {}".format(sig_num))
+    logger.warning(f"Received {sig_num}")
     global exit_flag  # need to specify this as global in order to be used here
     exit_flag = True
 
@@ -136,8 +133,8 @@ class SlackBot:
         # self.slack_client = slack_client
         self.bot_id = bot_id
         # find id
-        if not self.bot_id and \
-                self.slack_client.rtm_connect(with_team_state=False):
+        if (not self.bot_id and
+                self.slack_client.rtm_connect(with_team_state=False)):
             # Read bot's user ID by calling Web API method `auth.test`
             response = self.slack_client.api_call('auth.test')
             self.bot_id = response.get('user_id')
@@ -166,7 +163,7 @@ class SlackBot:
         self.post_message("goodbye")
 
     def parse_slack_events(self):
-        """Listens to slack events for our bot's name; \
+        """Listens to slack events for our bot's name;
             returns command in channel"""
         slack_events = self.slack_client.rtm_read()  # command listnen
         for slack_event in slack_events:
@@ -176,7 +173,7 @@ class SlackBot:
                 if slack_event["text"].startswith(self.at_bot):
                     chan = slack_event["channel"]
                     command = slack_event["text"][len(self.at_bot) + 1:]
-                    logger.info(f"got command {command} on channel {chan}")
+                    logger.info(f"Got command {command} on channel {chan}")
                     return chan, command
         return None, None
 
@@ -193,19 +190,19 @@ class SlackBot:
         Executes bot command if the command is known
         """
         # Default response is help text for the user
-        logger.info(f"received command {command} on channel {chan}")
+        logger.info(f"Received command {command} on channel {chan}")
         cmd = command.split()[0]
         if cmd not in bot_commands or cmd == 'help':
             help_text = formatted_dict(
-                bot_commands, k_header="Swanson command", v_header="The \
-                        Meaning of Swanson")
-            response = f'stop being dense. Try one of \
-                    these: \n ```{help_text}```'
+                bot_commands, k_header="Swanson command",
+                v_header="The Meaning of Swanson")
+            response = (f'stop being dense. Try one of '
+                        f'these: \n ```{help_text}```')
 
         if cmd == 'ping':
             uptime = (datetime.datetime.now() - self.bot_start).total_seconds()
-            response = f'Swanson lives, and has done so \
-                    for {uptime: .3f} seconds, dummy.'
+            response = (f'Swanson lives and has done so '
+                        f'for {uptime: .3f} seconds, dummy.')
 
         if cmd == 'exit':
             response = f'Swanson out.'
@@ -219,8 +216,8 @@ class SlackBot:
             response = fetch_cat()
 
         if cmd == 'meme':
-            response = fetch_swanson() + fetch_cat()
-        
+            response = fetch_swanson() + "\n" + fetch_cat()
+
         if cmd == 'raise':
             raise Exception("user-generated exception")
 
@@ -239,7 +236,7 @@ def main():
 
     with SlackBot("SLACK_BOT_TOKEN") as bot:
         while not exit_flag:
-            try:   
+            try:
                 if exception_flag:
                     # TODO: fetch the last X number of lines in the log to show the user
                     bot.post_message("YOU TRIED TO KILL ME! I WILL NEVER DIE!")
@@ -248,10 +245,12 @@ def main():
                 logger.debug("while loop")
             except Exception as e:
                 logger.error(str(e))
-                logger.error('You tried to kill me.  I will come back in 5 seconds')
+                logger.error(
+                    'You tried to kill me.  I will come back in 5 seconds')
                 exception_flag = True
                 time.sleep(5)
             time.sleep(RTM_READ_DELAY)
+
 
 if __name__ == "__main__":
     main()
