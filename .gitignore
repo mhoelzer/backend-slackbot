@@ -1,7 +1,7 @@
 .vscode/
 *.env
 *.log
-venv/
+theswanson/
 *.pyc
 .DS_Store
 *.code-workspace
