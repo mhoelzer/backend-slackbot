@@ -90,12 +90,12 @@ def formatted_dict(dicty_doo, k_header="Keys", v_header="Values"):
 
 def command_loop(bot):
     """Process incoming bot commands"""
-    logger.info("Waiting for commands")
+    logger.info("Waiting for commands...")
     while not exit_flag:
         chan, command = bot.parse_slack_events()
         if chan and command:
             bot.handle_command(chan, command)
-    logger.info("Bot is going out of scope")
+    logger.info("Bot is going out of scope.")
 
 
 def fetch_swanson():
@@ -112,13 +112,12 @@ def fetch_cat():
     """Gets random cat images from API"""
     url = 'https://api.thecatapi.com/v1/images/search'
     r = requests.get(url).json()
-    # r.raise_for_status()
     return r[0]['url']
 
 
 def signal_handler(sig_num, frame):
     """Handles incoming signals"""
-    logger.warning(f"Received {sig_num}")
+    logger.warning(f"Received {sig_num}.")
     global exit_flag  # need to specify this as global in order to be used here
     exit_flag = True
 
@@ -140,7 +139,7 @@ class SlackBot:
             response = self.slack_client.api_call('auth.test')
             self.bot_id = response.get('user_id')
         self.at_bot = '<@' + str(self.bot_id) + '>'
-        logger.info(f'{self.bot_name} Created new SlackBot')
+        logger.info(f'Created new SlackBot: {self.bot_name}.')
 
     def __repr__(self):
         """Identifies bot"""
@@ -160,7 +159,7 @@ class SlackBot:
 
     def __exit__(self, type, value, traceback):
         """Implement this method to make this a context manager"""
-        logger.info(f"{self} is disconnected")
+        logger.info(f"{self} is disconnected.")
         self.post_message("goodbye")
 
     def parse_slack_events(self):
@@ -178,12 +177,13 @@ class SlackBot:
                     return chan, command
         return None, None
 
-    def post_message(self, msg, chan=BOT_CHANNEL):
+    def post_message(self, msg, chan=BOT_CHANNEL, attachments=None):
         """Sends a message to a Slack Channel"""
         self.slack_client.api_call(
             "chat.postMessage",
             channel=chan,
-            text=msg
+            text=msg,
+            attachments=attachments
         )
 
     def handle_command(self, chan, command):
@@ -197,10 +197,11 @@ class SlackBot:
             help_text = formatted_dict(
                 bot_commands, k_header="Swanson command",
                 v_header="The Meaning of Swanson")
-            # img = "https://i.gifer.com/52ji.gif"
+            # img = "https://thumbs.gfycat.com/MalePresentFlyinglemur-size_restricted.gif"
             img = "https://slack-redir.net/link?url=https%3A%2F%2Fthumbs.gfycat.com%2FMalePresentFlyinglemur-small.gif"
-            response = (f'stop being dense. Try one of '
-                        f'these: \n ```{help_text}```' + '\n' + img)
+            response = (f'Stop being dense. Try one of '
+                        f'these: \n ```{help_text}```')
+            attachments = [{"title": "", "image_url": img}]
 
         if cmd == 'ping':
             uptime = (datetime.datetime.now() - self.bot_start).total_seconds()
@@ -226,10 +227,10 @@ class SlackBot:
             response = img
 
         if cmd == 'raise':
-            raise Exception("user-generated exception")
+            raise Exception("User-generated exception.")
 
         if response:
-            self.post_message(response, chan)
+            self.post_message(response, chan, attachments)
 
 
 def main():
@@ -249,11 +250,11 @@ def main():
                     bot.post_message("YOU TRIED TO KILL ME! I WILL NEVER DIE!")
                 exception_flag = False
                 command_loop(bot)
-                logger.debug("while loop")
+                logger.debug("While loop...")
             except Exception as e:
                 logger.error(str(e))
                 logger.error(
-                    'You tried to kill me.  I will come back in 5 seconds')
+                    'You tried to kill me. I will come back in 5 seconds.')
                 exception_flag = True
                 time.sleep(5)
             time.sleep(RTM_READ_DELAY)
