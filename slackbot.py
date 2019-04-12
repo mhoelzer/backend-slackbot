@@ -197,8 +197,10 @@ class SlackBot:
             help_text = formatted_dict(
                 bot_commands, k_header="Swanson command",
                 v_header="The Meaning of Swanson")
+            # img = "https://i.gifer.com/52ji.gif"
+            img = "https://slack-redir.net/link?url=https%3A%2F%2Fthumbs.gfycat.com%2FMalePresentFlyinglemur-small.gif"
             response = (f'stop being dense. Try one of '
-                        f'these: \n ```{help_text}```')
+                        f'these: \n ```{help_text}```' + '\n' + img)
 
         if cmd == 'ping':
             uptime = (datetime.datetime.now() - self.bot_start).total_seconds()
