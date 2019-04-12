@@ -245,7 +245,8 @@ def main():
         while not exit_flag:
             try:
                 if exception_flag:
-                    # TODO: fetch the last X number of lines in the log to show the user
+                    # TODO: stretch goal fetch the last X number of lines in \
+                    # the log to show the user
                     bot.post_message("YOU TRIED TO KILL ME! I WILL NEVER DIE!")
                 exception_flag = False
                 command_loop(bot)
